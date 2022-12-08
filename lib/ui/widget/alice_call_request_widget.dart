@@ -3,9 +3,10 @@ import 'package:alice/ui/widget/alice_base_call_details_widget.dart';
 import 'package:flutter/material.dart';
 
 class AliceCallRequestWidget extends StatefulWidget {
+  final bool isWrap;
   final AliceHttpCall call;
 
-  const AliceCallRequestWidget(this.call);
+  const AliceCallRequestWidget(this.call , {this.isWrap = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -20,8 +21,9 @@ class _AliceCallRequestWidget
   @override
   Widget build(BuildContext context) {
     final List<Widget> rows = [];
-    rows.add(getListRow("Started:", _call.request!.time.toString()));
-    rows.add(getListRow("Bytes sent:", formatBytes(_call.request!.size)));
+    rows.add(getListRow("Method: ", _call.method));
+    rows.add(getListRow("Server: ", _call.server));
+    rows.add(getListRow("Endpoint: ", _call.endpoint));
     rows.add(
       getListRow("Content type:", getContentType(_call.request!.headers)!),
     );
@@ -74,10 +76,10 @@ class _AliceCallRequestWidget
     _call.request!.queryParameters.forEach((query, dynamic value) {
       rows.add(getListRow("   • $query:", value.toString()));
     });
-
+    rows.add(getListRow("CURL: ", _call.getCurlCommand()));
     return Container(
       padding: const EdgeInsets.all(6),
-      child: ListView(children: rows),
+      child: ListView(shrinkWrap: widget.isWrap, physics: widget.isWrap ? const NeverScrollableScrollPhysics() : null, children: rows),
     );
   }
 }

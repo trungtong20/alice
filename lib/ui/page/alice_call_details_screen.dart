@@ -23,10 +23,19 @@ class AliceCallDetailsScreen extends StatefulWidget {
 class _AliceCallDetailsScreenState extends State<AliceCallDetailsScreen>
     with SingleTickerProviderStateMixin {
   AliceHttpCall get call => widget.call;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController =
+        new TabController(vsync: this, length: _getTabBars().length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,9 +70,7 @@ class _AliceCallDetailsScreenState extends State<AliceCallDetailsScreen>
   }
 
   Widget _buildMainWidget() {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
+    return Scaffold(
         floatingActionButton: widget.core.showShareButton == true
             ? FloatingActionButton(
                 backgroundColor: AliceConstants.lightRed,
@@ -82,16 +89,16 @@ class _AliceCallDetailsScreenState extends State<AliceCallDetailsScreen>
             : null,
         appBar: AppBar(
           bottom: TabBar(
+            controller: _tabController,
             indicatorColor: AliceConstants.lightRed,
             tabs: _getTabBars(),
           ),
-          title: const Text('Alice - HTTP Call Details'),
+          title: const Text('Network-debug'),
         ),
         body: TabBarView(
+          controller: _tabController,
           children: _getTabBarViewList(),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildErrorWidget() {
@@ -99,6 +106,11 @@ class _AliceCallDetailsScreenState extends State<AliceCallDetailsScreen>
   }
 
   Future<String> _getSharableResponseString() async {
+    if (_tabController.index == 1) {
+      return widget.call.getCurlCommand();
+    } else if (_tabController.index == 2) {
+      return widget.call.response?.body ?? '';
+    }
     return AliceSaveHelper.buildCallLog(widget.call);
   }
 

@@ -6,8 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AliceCallResponseWidget extends StatefulWidget {
   final AliceHttpCall call;
+  final bool isWrap;
 
-  const AliceCallResponseWidget(this.call);
+  const AliceCallResponseWidget(this.call,  {this.isWrap = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -34,12 +35,11 @@ class _AliceCallResponseWidgetState
     final List<Widget> rows = [];
     if (!_call.loading) {
       rows.addAll(_buildGeneralDataRows());
-      rows.addAll(_buildHeadersRows());
       rows.addAll(_buildBodyRows());
 
       return Container(
         padding: const EdgeInsets.all(6),
-        child: ListView(children: rows),
+        child: ListView(shrinkWrap: widget.isWrap, physics: widget.isWrap ? const NeverScrollableScrollPhysics() : null, children: rows),
       );
     } else {
       return Center(
@@ -75,12 +75,6 @@ class _AliceCallResponseWidgetState
     var headersContent = "Headers are empty";
     if (headers != null && headers.isNotEmpty) {
       headersContent = "";
-    }
-    rows.add(getListRow("Headers: ", headersContent));
-    if (_call.response!.headers != null) {
-      _call.response!.headers!.forEach((header, value) {
-        rows.add(getListRow("   • $header:", value.toString()));
-      });
     }
     return rows;
   }
